@@ -1,6 +1,6 @@
 '''
 Goal: this code was written for a specific application at FUMEC, but can be generalized.
-It takes a database (.csv) treats the dates and drop ID duplicates keeping the last entries.
+It takes a database (.csv), treats the dates and drop ID duplicates keeping the last entries.
 Then it adds the age and some other useful info, simplifies and reorganizes the columns generating an .xlsx file.
 '''
 
@@ -26,7 +26,7 @@ df = df.drop_duplicates(subset = "ID", keep="last")
 
 # Remove the added date
 for i in df.index:
-    if df['DATA SAÍDA'][i] == datetime.date(2021, 12, 31).strftime("%d/%m/%Y"):
+    if df['DATA SAÍDA'][i] == pd.to_datetime('31/12/2021', format="%d/%m/%Y"):
         df.at[i,'DATA SAÍDA'] = float('nan')
         
 # Adds age
@@ -131,7 +131,28 @@ cols = ['ID',
 df = df[cols]
         
 # Generate Pivot Table (not implemented)
+conta_programa = pd.pivot_table(df, values = 'ID', index = 'PROGRAMA', columns='SITUAÇÃO', aggfunc='count')
+conta_regional = pd.pivot_table(df, values = 'ID', index = 'REGIONAL', columns='SITUAÇÃO', aggfunc='count')
+conta_idade = pd.pivot_table(df, values = 'ID', index = 'FAIXA ETÁRIA', columns='SITUAÇÃO', aggfunc='count')
+conta_sexo = pd.pivot_table(df, values = 'ID', index = 'SEXO', columns='SITUAÇÃO', aggfunc='count')
+conta_etnia = pd.pivot_table(df, values = 'ID', index = 'ETNIA', columns='SITUAÇÃO', aggfunc='count')
+conta_especiais = pd.pivot_table(df, values = 'ID', index = 'NECESSIDADES ESPECIAIS', columns='SITUAÇÃO', aggfunc='count')
 
 # Write final CSV file
 output = input("Insira o nome desejado:")+".xlsx"
-df.to_excel(output, index=False)
+# df.to_excel(output, index=False)
+
+writer = pd.ExcelWriter(output,engine='xlsxwriter')   
+df.to_excel(writer,sheet_name='Base',startrow=0 , startcol=0, index=False)
+dim_1 = len(conta_programa)
+dim_2 = dim_1 + len(conta_regional)
+dim_3 = dim_2 + len(conta_idade)
+dim_4 = dim_3 + len(conta_sexo)
+dim_5 = dim_4 + len(conta_etnia)
+conta_programa.to_excel(writer,sheet_name='TDs',startrow=0, startcol=0)
+conta_regional.to_excel(writer,sheet_name='TDs',startrow=dim_1, startcol=0) 
+conta_idade.to_excel(writer,sheet_name='TDs',startrow=dim_2, startcol=0) 
+conta_sexo.to_excel(writer,sheet_name='TDs',startrow=dim_3, startcol=0) 
+conta_etnia.to_excel(writer,sheet_name='TDs',startrow=dim_4, startcol=0) 
+conta_especiais.to_excel(writer,sheet_name='TDs',startrow=dim_5, startcol=0) 
+writer.save()
