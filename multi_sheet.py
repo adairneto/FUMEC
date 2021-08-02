@@ -1,7 +1,7 @@
 # Objetivo:
-# Caso 1: juntar várias planilhas num único arquivo
-# Caso 2: juntar abas de um mesmo arquivo
-# Caso 3: juntar vários dataframes num mesmo .xlsx
+# Caso 1: junta vários arquivos .xlsx num mesmo diretório
+# Caso 2: junta várias abas num mesmo arquivo .xlsx
+# Caso 3: junta vários dataframes num mesmo .xlsx
 
 import pandas as pd
 
